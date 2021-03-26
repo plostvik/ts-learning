@@ -44,6 +44,26 @@ validators["Letters only"] = new Validation.LettersOnlyValidator();
 ///<reference path="form-namespace.ts"/>
 // Кроме того, чтобы это работало нужно сам класс или то, где мы будем использовать неймспейс обернуть в неймспейс с таким же названием
 
+//4 Decorator
+const enumerable = (value: boolean) => {
+  return (
+    target: any,
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor,
+  ) => {
+    descriptor.enumerable = value;
+  };
+};
+
+class User {
+  constructor(public name: string, public age: number) {}
+
+  @enumerable(false)
+  public getPAss(): string {
+    return `${this.name}${this.age}`;
+  }
+}
+
 //7 infer
 const person = { name: "Andrew", age: 30 };
 type A<T> = T extends {
@@ -73,6 +93,17 @@ console.log(result1); // 9
 let result2 = add("5", "4");
 console.log(result2); // 54
 
+//12
+class TypedBuilder<T> {
+  constructor(private current = {}) {}
+  prop<P extends keyof T, V extends T[P]>(key: P, value: V) {
+    return new TypedBuilder<T>({ ...this.current, ...{ [key]: value } });
+  }
+  build() {
+    return <T>this.current;
+  }
+}
+
 const result = getProperty({ name: "Ostap", age: 30 }, "name");
 // 13
 // in
@@ -80,6 +111,28 @@ type Properties = "propA" | "propB";
 type mappedType = {
   [P in Properties]: boolean;
 };
+
+// function move(pet: Fish | Bird) {
+//   if ("swim" in pet) {
+//     return pet.swim();
+//   }
+//   return pet.fly();
+// }
+
+//typeof
+function padLeft(value: string, padding: string | number) {
+  if (typeof padding === "number") {
+    return Array(padding + 1).join(" ") + value;
+  }
+  if (typeof padding === "string") {
+    return padding + value;
+  }
+  throw new Error(`Expected string or number, got '${padding}'.`);
+}
+
+//14 Conditional types
+
+type NonNullable<T> = T extends null | undefined ? never : T;
 
 //16 Вопрос №18 (5). Расскажите о том, когда в TypeScript используют ключевое слово declare.
 
