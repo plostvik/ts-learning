@@ -97,6 +97,10 @@ class User {
   }
 }
 
+//**6 */
+//DefinitelyTyped repo npm search @types
+//npm i -D @types/jquery
+
 //**7 infer
 const person = { name: "Andrew", age: 30 };
 type A<T> = T extends {
@@ -107,7 +111,28 @@ type A<T> = T extends {
 type B = typeof person;
 type C = A<B>;
 
-//** 8 */
+//** 8 */ коллекция генериков
+
+class Collection<T> {
+  private _things: T[];
+  constructor() {
+    this._things = [];
+  }
+  add(something: T): void {
+    this._things.push(something);
+  }
+  get(index: number): T {
+    return this._things[index];
+  }
+}
+
+let Stringss = new Collection<String>();
+let Numberss = new Collection<number>();
+
+Numberss.add(1);
+Numberss.add(2);
+Stringss.add("hello");
+Stringss.add("world");
 
 interface IUser {
   name: string;
@@ -244,20 +269,45 @@ example("hello world");
 
 //**14 Conditional types
 
+interface StringContainer {
+  value: string;
+  format(): string;
+  split(): string[];
+}
+
+interface NumberContainer {
+  value: number;
+  nearestPrime: number;
+  round(): number;
+}
+
+type Item<T> = {
+  id: T;
+  container: T extends string ? StringContainer : NumberContainer;
+};
+
+//**Distributive conditional types. */
+//example1
 type NonNullable<T> = T extends null | undefined ? never : T;
+//esample2
+type ArrayFilter<T> = T extends any[] ? T : never;
+type StringsOrNumbers = ArrayFilter<string | number | string[] | number[]>;
+
+//**Type inference in conditional types */
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : any;
+
+//**Predefined conditional types
+// Exclude<T, U> — Exclude from T those types that are assignable to U.
+// Extract<T, U> — Extract from T those types that are assignable to U.
+// NonNullable<T> — Exclude null and undefined from T.
+// ReturnType<T> — Obtain the return type of a function type.
+// InstanceType<T> — Obtain the instance type of a constructor function type.
 
 //**16 Вопрос №18 (5). Расскажите о том, когда в TypeScript используют ключевое слово declare.
-
-// Ключевое слово declare используется в TypeScript для объявления переменных, источником которых может служить некий файл, не являющийся TypeScript-файлом.
-
-// Например, представим, что у нас имеется библиотека, которая называется myLibrary. У неё нет файла с объявлениями типов TypeScript, у неё имеется лишь пространство имён myLibrary в глобальном пространстве имён. Если вы хотите использовать эту библиотеку в своём TS-коде, вы можете использовать следующую конструкцию:
-
-// declare var myLibrary;
-
-// TypeScript назначит переменной myLibrary тип any. Проблема тут заключается в том, что у вас не будет, во время разработки, интеллектуальных подсказок по этой библиотеке, хотя использовать её в своём коде вы сможете. В этой ситуации можно воспользоваться и другим подходом, ведущим к тому же результату. Речь идёт об использовании переменной типа any:
-
-// var myLibrary: any;
-
-// И в том и в другом случае при компиляции TS-кода в JavaScript, получится одно и то же, но вариант с использованием ключевого слова declare отличается лучшей читабельностью. Применение этого ключевого слова приводит к созданию так называемого внешнего объявления переменной (ambient declaration).
+//.d.ts not produced JS as output
+//пример с библиотекой лодаш
+// declare module "lodash" {
+//   export function random(min:number, max:number): number;
+// }
 
 export {};

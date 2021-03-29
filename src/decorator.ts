@@ -1,28 +1,28 @@
-// function minimumFuel50(
-//     target: Object,
-//     propertyKey: string,
-//     descriptor: PropertyDescriptor
-// ): any {
-//     // console.log("target:", target);
-//     // console.log("propertyKey:", propertyKey);
-//     // console.log("descriptor:", descriptor);
+function minimumFuel50(
+  target: Object,
+  propertyKey: string,
+  descriptor: PropertyDescriptor,
+): any {
+  // console.log("target:", target);
+  // console.log("propertyKey:", propertyKey);
+  // console.log("descriptor:", descriptor);
 
-//     const minFuel = 50;
-//     console.log("called minimumFuel50 decorator");
-//     const originalMethod = descriptor.value;
+  const minFuel = 50;
+  console.log("called minimumFuel50 decorator");
+  const originalMethod = descriptor.value;
 
-//     descriptor.value = function(...args: any[]) {
-//         console.log("called decorated function");
-//         let rocket = this;
-//         if (rocket.fuel >= minFuel) {
-//             originalMethod.apply(rocket, args);
-//         } else {
-//             console.log("Not enough fuel!");
-//         }
-//     };
+  descriptor.value = function (...args: any[]) {
+    console.log("called decorated function");
+    let rocket = this;
+    if (rocket.fuel >= minFuel) {
+      originalMethod.apply(rocket, args);
+    } else {
+      console.log("Not enough fuel!");
+    }
+  };
 
-//     return descriptor;
-// }
+  return descriptor;
+}
 
 function minimumFuel(minFuel: number): any {
   console.log("called decorator factory with minFuel:", minFuel);

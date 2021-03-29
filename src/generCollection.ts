@@ -25,6 +25,7 @@
 // Numberss.add(2);
 // Numberss.add("hjkl");
 
+//! плохой пример
 // class Collection {
 //     private _things:any[] = [];
 //     add(something: any) {
