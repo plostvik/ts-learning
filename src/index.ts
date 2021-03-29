@@ -1,4 +1,4 @@
-//! 1.Partial - делает свойства опциональным. Записывается как генерик. Partial <T>.
+//**1.Partial - делает свойства опциональным. Записывается как генерик. Partial <T>.
 //Например, у нас есть интерфейс:
 
 interface T {
@@ -11,7 +11,30 @@ const somethnig: Partial<T> = {
   color: "orange",
 };
 
-//! 2.Конструкция namespace представлена в виде объекта с ключевым словом
+interface T1 {
+  a: string;
+}
+
+interface T2 {
+  b: string[];
+}
+
+//using in
+function someFn(arg: T1 | T2) {
+  if ("b" in arg) {
+    console.log(arg.b);
+  }
+}
+
+function someFn2(arg: T1 & T2) {
+  console.log(arg.b);
+}
+
+function someFn3(arg: string & string[]) {
+  arg.substring;
+}
+
+//**2.Конструкция namespace представлена в виде объекта с ключевым словом
 namespace Validation {
   export interface StringValidator {
     isAcceptable(s: string): boolean;
@@ -44,7 +67,17 @@ validators["Letters only"] = new Validation.LettersOnlyValidator();
 ///<reference path="form-namespace.ts"/>
 // Кроме того, чтобы это работало нужно сам класс или то, где мы будем использовать неймспейс обернуть в неймспейс с таким же названием
 
-//4 Decorator
+//** 3 */
+//переименование с помощью as
+const one = 1;
+const two = 2;
+export { one as first, two };
+import { two as twice } from "./";
+
+//импорт всего в виде объекта
+// import * as numbers from "./number.js"
+
+//**4 Decorator
 const enumerable = (value: boolean) => {
   return (
     target: any,
@@ -59,12 +92,12 @@ class User {
   constructor(public name: string, public age: number) {}
 
   @enumerable(false)
-  public getPAss(): string {
+  public getPass(): string {
     return `${this.name}${this.age}`;
   }
 }
 
-//7 infer
+//**7 infer
 const person = { name: "Andrew", age: 30 };
 type A<T> = T extends {
   [key: string]: infer U;
@@ -74,7 +107,23 @@ type A<T> = T extends {
 type B = typeof person;
 type C = A<B>;
 
-//9
+//** 8 */
+
+interface IUser {
+  name: string;
+  age: number;
+  getPass(): string;
+}
+
+class Ostap implements IUser {
+  name: string = "Ostap";
+  age: number = 30;
+  getPass() {
+    return "password";
+  }
+}
+
+//**9
 function getProperty<ObjectType, KeyType extends keyof ObjectType>(
   obj: ObjectType,
   key: KeyType,
@@ -82,7 +131,9 @@ function getProperty<ObjectType, KeyType extends keyof ObjectType>(
   return obj[key];
 }
 
-//10
+//**10
+
+//чтобы избежать проблему, когда будут вызывать функцию add(1, "2");
 function add(x: string, y: string): string;
 function add(x: number, y: number): number;
 function add(x: any, y: any): any {
@@ -93,7 +144,16 @@ console.log(result1); // 9
 let result2 = add("5", "4");
 console.log(result2); // 54
 
-//12
+//** ================ 12 ================
+
+interface RequestSettings {
+  protocol: "http" | "https";
+  host: string;
+  path: string;
+  query?: string;
+  headers: { key: string; value: string }[];
+}
+
 class TypedBuilder<T> {
   constructor(private current = {}) {}
   prop<P extends keyof T, V extends T[P]>(key: P, value: V) {
@@ -104,8 +164,54 @@ class TypedBuilder<T> {
   }
 }
 
+class SimpleBuilder {
+  private current: { [index: string]: any } = {};
+
+  prop(key: string, value: any) {
+    this.current[key] = value;
+    return this;
+  }
+
+  build<R>() {
+    return <R>this.current;
+  }
+}
+
+// Usage
+
+const settings1 = new SimpleBuilder()
+  .prop("protocol", "http")
+  .prop("host", "test.com")
+  .prop("path", "/foo/bar")
+  .prop("headers", [])
+  .build<RequestSettings>();
+
 const result = getProperty({ name: "Ostap", age: 30 }, "name");
-// 13
+//** ============= 13 Type Guards ================
+
+//type of
+function logError(error: string | Error): void {
+  if (typeof error === "string") {
+    console.log(error);
+  } else console.log(error.message);
+}
+
+//instanceof
+class Tesla {
+  constructor(public maxSpeed: number) {}
+}
+
+class Shkoda {
+  constructor(public maxSpeed: number) {}
+}
+
+function getCooliness(car: Tesla | Shkoda): void {
+  if (car instanceof Tesla) {
+    console.log("You're cool guy");
+  } else {
+    console.log("I need to dissapoint you");
+  }
+}
 // in
 type Properties = "propA" | "propB";
 type mappedType = {
@@ -119,22 +225,28 @@ type mappedType = {
 //   return pet.fly();
 // }
 
-//typeof
-function padLeft(value: string, padding: string | number) {
-  if (typeof padding === "number") {
-    return Array(padding + 1).join(" ") + value;
-  }
-  if (typeof padding === "string") {
-    return padding + value;
-  }
-  throw new Error(`Expected string or number, got '${padding}'.`);
+// is
+function isString(test: any): test is string {
+  return typeof test === "string";
 }
 
-//14 Conditional types
+function example(foo: any) {
+  if (isString(foo)) {
+    console.log("it is a string" + foo);
+    console.log(foo.length); // string function
+  }
+}
+example("hello world");
+
+// function isFish(pet: Fish | Bird): pet is Fish {
+//   return (pet as Fish).swim !== undefined;
+// }
+
+//**14 Conditional types
 
 type NonNullable<T> = T extends null | undefined ? never : T;
 
-//16 Вопрос №18 (5). Расскажите о том, когда в TypeScript используют ключевое слово declare.
+//**16 Вопрос №18 (5). Расскажите о том, когда в TypeScript используют ключевое слово declare.
 
 // Ключевое слово declare используется в TypeScript для объявления переменных, источником которых может служить некий файл, не являющийся TypeScript-файлом.
 
